@@ -17,7 +17,7 @@ Built with **FastAPI**, **SQLite**, and **Docker**, this app lets you log daily 
 ---
 
 ## Project Structure
-
+```bash
 transportation-expense-tracker/
 ├── backend/ # FastAPI API code
 ├── data/ # SQLite DB (persistent storage)
@@ -25,7 +25,7 @@ transportation-expense-tracker/
 ├── docker-compose.yml
 ├── README.md
 └── .github/ # CI/CD pipelines (optional)
-
+```
 ---
 
 ## Getting Started
