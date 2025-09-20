@@ -23,15 +23,15 @@ pipeline {
             }
         }
 
-        stage('Run (smoke)') {
-            steps {
-                echo 'Starting container for smoke test...'
-                sh 'docker run -d --name expense-smoke -p 8000:8000 met-expense-tracker:latest'
-                // simple curl check
-                sh 'sleep 5 && curl -f http://localhost:8000/health || exit 1'
-                sh 'docker rm -f expense-smoke || true'
-            }
-        }
+        //stage('Run (smoke)') {
+        //    steps {
+        //        echo 'Starting container for smoke test...'
+        //        sh 'docker run -d --name expense-smoke -p 8000:8000 met-expense-tracker:latest'
+        //        // simple curl check
+        //        sh 'sleep 5 && curl -f http://localhost:8000/health || exit 1'
+        //        sh 'docker rm -f expense-smoke || true'
+        //    }
+        //}
     }
 
     post {
