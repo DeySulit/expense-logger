@@ -1,54 +1,46 @@
 pipeline {
     agent any
-    environment {
-        DOCKER_IMAGE = "met-expense-tracker:latest"
-        APP_PORT = "8000"
-    }
+
     stages {
         stage('Checkout') {
             steps {
-                // ensure repo is checked out to workspace
                 checkout scm
                 sh 'ls -la'
             }
         }
+
         stage('Build') {
             steps {
-                echo "Building Docker image from backend/Dockerfile..."
-                // -f points to Dockerfile and last arg is build context
-                sh "docker build -t ${DOCKER_IMAGE} -f backend/Dockerfile backend"
+                echo 'Building Docker image from backend/Dockerfile...'
+                sh 'docker build -t met-expense-tracker:latest -f backend/Dockerfile backend'
             }
         }
+
         stage('Test') {
             steps {
-                echo "Running tests inside container (override CMD)..."
-                // override container command to run pytest; adjust if tests live elsewhere
-                sh "docker run --rm ${DOCKER_IMAGE} pytest || (docker images && exit 1)"
+                echo 'Running tests inside container (override CMD)...'
+                sh 'docker run --rm met-expense-tracker:latest pytest'
             }
         }
+
         stage('Run (smoke)') {
             steps {
-                echo "Running app container for a quick smoke test..."
-                // remove any previous container with same name
-                sh "docker rm -f fastapi-ci-run || true"
-                sh "docker run -d --name fastapi-ci-run -p ${APP_PORT}:${APP_PORT} ${DOCKER_IMAGE}"
-                // simple curl healthcheck (adjust to your app path)
-                sh "sleep 2; curl -f http://localhost:${APP_PORT}/ || (docker logs fastapi-ci-run && exit 1)"
-                // stop container when done (comment this if you want the container kept)
-                sh "docker rm -f fastapi-ci-run || true"
+                echo 'Starting container for smoke test...'
+                sh 'docker run -d --name expense-smoke -p 8000:8000 met-expense-tracker:latest'
+                // simple curl check
+                sh 'sleep 5 && curl -f http://localhost:8000/health || exit 1'
+                sh 'docker rm -f expense-smoke || true'
             }
         }
     }
+
     post {
         always {
-            echo "Cleaning up dangling images..."
-            sh "docker image prune -f || true"
-        }
-        success {
-            echo "Pipeline succeeded."
+            echo 'Cleaning up dangling images...'
+            sh 'docker image prune -f'
         }
         failure {
-            echo "Pipeline failed — check console output."
+            echo 'Pipeline failed — check console output.'
         }
     }
 }
